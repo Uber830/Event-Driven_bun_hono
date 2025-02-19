@@ -1,0 +1,21 @@
+{
+  "name": "backend_1",
+  "version": "1.0.0",
+  "description": "This is a backend send event to other backend and other backend",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch app.ts",
+    "start": "bun app.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.39.3",
+    "hono": "^4.6.20",
+    "pg": "^8.13.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.4"
+  }
+}

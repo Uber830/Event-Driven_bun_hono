@@ -1,0 +1,21 @@
+# deps
+node_modules/
+
+# env
+.env
+
+# bun
+bun.lockb 
+bun.lock
+
+# bun output
+dist/
+
+# bun lock file
+.bun
+
+# bun log
+bun.log
+
+# bun history
+.history
