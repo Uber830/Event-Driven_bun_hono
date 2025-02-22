@@ -7,6 +7,10 @@ import db from "./config/db";
 import initializeDatabase from "./config/initDb";
 import appRoutes from "./routes/index";
 import { notFound, errorHandler } from "./middleware/error";
+import { connectRabbitMQ } from "./utils/rabbitmq";
+
+// Connect to RabbitMQ
+connectRabbitMQ();
 
 // Config db
 db;
@@ -41,15 +45,13 @@ home.get("/", (c) => {
 home.route("/api", appRoutes);
 
 // Error Handler
-home.onError((err, c) => {
-  const error = errorHandler(c);
-  return error;
+home.onError((_, c) => {
+  return errorHandler(c);
 });
 
 // Not Found Handler
 home.notFound((c) => {
-  const error = notFound(c);
-  return error;
+  return notFound(c);
 });
 
 export default home;

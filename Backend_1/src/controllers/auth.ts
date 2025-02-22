@@ -1,10 +1,15 @@
 import { Context } from "hono";
-import genToken from "../utils/genToken";
+import { genToken, newPasswordHash } from "../utils/genToken";
 import {
   getUserByEmail,
   createUser,
   createPasswordResetToken,
+  getPasswordResetToken,
+  updateUser,
+  updatePasswordResetToken,
 } from "../service/user";
+import { publishEvent } from "../utils/rabbitmq";
+import { AppError } from "../utils/classErrorCustom";
 
 /**
  * @api {post} /Register User
@@ -16,30 +21,37 @@ export const registerUser = async (c: Context) => {
 
   const userExists = await getUserByEmail(email);
   if (userExists) {
-    c.status(400);
-    throw new Error("User already exists");
+    throw new AppError("User already exists", 400);
   }
 
   // Hash password
-  const password_hash = await Bun.password.hash(password, {
-    algorithm: "bcrypt",
-    cost: 9,
-  });
+  const password_hash = await newPasswordHash(password);
   const user = await createUser(username, email, password_hash);
   if (!user) {
-    c.status(400);
-    throw new Error("Invalid user data");
+    throw new AppError("Invalid user data", 400);
   }
 
-  const token = await genToken(String(user[0]?.id));
+  // Publich event of register
+  const event = {
+    type: "USER_REGISTERED",
+    data: {
+      id: user?.id,
+      username: user?.username,
+      email: user?.email,
+    },
+  };
+
+  publishEvent("user_events", event);
+
+  const token = await genToken(String(user?.id));
   return c.json({
     success: true,
     data: {
-      id: user[0]?.id,
-      username: user[0]?.username,
-      email: user[0]?.email,
-      created_at: user[0]?.created_at,
-      updated_at: user[0]?.updated_at,
+      id: user?.id,
+      username: user?.username,
+      email: user?.email,
+      created_at: user?.created_at,
+      updated_at: user?.updated_at,
     },
     token,
     message: "User created successfully",
@@ -56,33 +68,44 @@ export const loginUser = async (c: Context) => {
 
   // Check for existing user
   if (!email || !password) {
-    c.status(400);
-    throw new Error("Please provide an email and password");
+    throw new AppError("Please provide an email and password", 400);
   }
 
   const user = await getUserByEmail(email);
   if (!user) {
-    c.status(401);
-    throw new Error("No user found with this email");
+    throw new AppError("No user found with this email", 401);
   }
 
-  if (!Bun.password.verifySync(password, user?.password_hash)) {
-    c.status(401);
-    throw new Error("Invalid credentials");
-  } else {
-    const token = await genToken(String(user?.id));
-
-    return c.json({
-      success: true,
-      data: {
-        id: user?.id,
-        name: user?.username,
-        email: user?.email,
-      },
-      token,
-      message: "User logged in successfully",
-    });
+  const passwordMatch = await Bun.password.verify(
+    password,
+    user?.password_hash,
+  );
+  if (!passwordMatch) {
+    throw new AppError("Invalid credentials", 401);
   }
+
+  // Publich event of login
+  const event = {
+    type: "USER_LOGIN",
+    data: {
+      id: user?.id,
+      username: user?.username,
+      email: user?.email,
+    },
+  };
+  publishEvent("user_events", event);
+
+  const token = await genToken(String(user?.id));
+  return c.json({
+    success: true,
+    data: {
+      id: user?.id,
+      name: user?.username,
+      email: user?.email,
+    },
+    token,
+    message: "User logged in successfully",
+  });
 };
 
 /**
@@ -95,27 +118,67 @@ export const recoverUser = async (c: Context) => {
 
   // Check for existing user
   if (!email) {
-    c.status(400);
-    throw new Error("Please provide an email");
+    throw new AppError("Please provide an email", 400);
   }
 
   const user = await getUserByEmail(email);
   if (!user) {
-    c.status(401);
-    throw new Error("No user found with this email");
+    throw new AppError("No user found with this email", 401);
   }
 
-  const token = await genToken(String(user?.id));
-  // 86400 seconds = 24 hours format date expiration
-  await createPasswordResetToken(user?.id, token, new Date(Date.now() + 86400));
+  const resetToken = await createPasswordResetToken(user?.id);
+  // Publich event of recover
+  const event = {
+    type: "PASSWORD_RESET_REQUEST",
+    data: {
+      id: user?.id,
+      email: user?.email,
+      resetToken: resetToken?.token,
+    },
+  };
+  publishEvent("user_events", event);
 
   return c.json({
     success: true,
-    data: {
-      id: user?.id,
-      name: user?.username,
-      email: user?.email,
-    },
-    message: "User recovered successfully",
+    message: "Password reset link send to your email",
+  });
+};
+
+/**
+ * @api {post} /users/reset-password Reset Password
+ * @apiGroup Users
+ * @access Public
+ */
+export const validationResetToken = async (c: Context) => {
+  const { password, token } = await c.req.json();
+
+  if (!password || !token) {
+    throw new AppError("Please provide an password and token", 400);
+  }
+
+  const resetToken = await getPasswordResetToken(token);
+  if (!resetToken) {
+    throw new AppError("Invalid token", 401);
+  }
+
+  // Check if token is expired
+  if (resetToken?.expires_at < new Date()) {
+    throw new AppError("Token expired", 401);
+  }
+
+  // Check if token has already been used
+  if (resetToken?.used) {
+    throw new AppError("Token already used", 401);
+  }
+
+  // Hash password
+  const password_hash = await newPasswordHash(password);
+
+  // Update user password and password reset token used
+  await updateUser(resetToken?.user_id, password_hash);
+  await updatePasswordResetToken(resetToken?.id);
+  return c.json({
+    success: true,
+    message: "Password updated successfully",
   });
 };
