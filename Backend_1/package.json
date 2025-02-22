@@ -9,13 +9,17 @@
     "start": "bun app.ts"
   },
   "dependencies": {
+    "amqplib": "^0.10.5",
     "drizzle-orm": "^0.39.3",
     "hono": "^4.6.20",
-    "pg": "^8.13.3"
+    "nanoid": "^5.1.0",
+    "pg": "^8.13.3",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/pg": "^8.11.11",
-    "drizzle-kit": "^0.30.4"
+    "@types/winston": "^2.4.4",
+    "drizzle-kit": "^0.19.1"
   }
 }

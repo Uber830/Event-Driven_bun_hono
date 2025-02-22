@@ -1,6 +1,7 @@
 import { Context, Next } from "hono";
 import { Jwt } from "hono/utils/jwt";
 import { getUserById } from "../service/user";
+import { AppError } from "../utils/classErrorCustom";
 
 // Protect Route for Authenticated Users
 export const protect = async (c: Context, next: Next) => {
@@ -19,17 +20,17 @@ export const protect = async (c: Context, next: Next) => {
       const { id } = await Jwt.verify(token, process.env.JWT_SECRET || "");
       const user = await getUserById(Number(id));
       if (!user) {
-        throw new Error("Error: Get user by id");
+        throw new AppError("Invalid token! You are not authorized!", 401);
       }
       c.set("user", user);
 
       await next();
     } catch (err) {
-      throw new Error("Invalid token! You are not authorized!");
+      throw new AppError("Invalid token! You are not authorized!", 401);
     }
   }
 
   if (!token) {
-    throw new Error("Not authorized! No token found!");
+    throw new AppError("Not authorized to access this route", 401);
   }
 };

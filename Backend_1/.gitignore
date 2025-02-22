@@ -16,6 +16,7 @@ dist/
 
 # bun log
 bun.log
+error.log
 
 # bun history
 .history
