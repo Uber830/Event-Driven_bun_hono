@@ -6,9 +6,9 @@ WORKDIR /app
 COPY .env .env
 
 # File system
-COPY package.json ./
-COPY bun.* ./
-COPY app.ts ./
+COPY package.json .
+COPY bun.* .
+COPY app.ts .
 COPY src ./src
 
 # Instalar dependencias
