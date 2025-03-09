@@ -1,4 +1,6 @@
 import { Context } from "hono";
+import { getConnInfo } from "hono/bun";
+
 import { genToken, newPasswordHash } from "../utils/genToken";
 import {
   getUserByEmail,
@@ -10,6 +12,7 @@ import {
 } from "../service/user";
 import { publishEvent } from "../utils/rabbitmq";
 import { AppError } from "../utils/classErrorCustom";
+import { normalizeIp } from "../utils/transformIp";
 
 /**
  * @api {post} /Register User
@@ -35,7 +38,6 @@ export const registerUser = async (c: Context) => {
   const event = {
     type: "USER_REGISTERED",
     data: {
-      id: user?.id,
       username: user?.username,
       email: user?.email,
     },
@@ -65,6 +67,8 @@ export const registerUser = async (c: Context) => {
  */
 export const loginUser = async (c: Context) => {
   const { email, password } = await c.req.json();
+  const ipAddress = normalizeIp(getConnInfo(c)?.remote?.address!);
+  const userAgent = c.req.header("user-agent");
 
   // Check for existing user
   if (!email || !password) {
@@ -81,6 +85,17 @@ export const loginUser = async (c: Context) => {
     user?.password_hash,
   );
   if (!passwordMatch) {
+    const event = {
+      type: "USER_LOGIN_FAILED",
+      data: {
+        userId: user?.id,
+        attemptTime: new Date(),
+        ipAddress,
+        userAgent,
+      },
+    };
+    publishEvent("user_events", event);
+
     throw new AppError("Invalid credentials", 401);
   }
 
@@ -88,9 +103,12 @@ export const loginUser = async (c: Context) => {
   const event = {
     type: "USER_LOGIN",
     data: {
-      id: user?.id,
+      userId: user?.id,
       username: user?.username,
       email: user?.email,
+      loginTime: new Date(),
+      ipAddress,
+      userAgent,
     },
   };
   publishEvent("user_events", event);
@@ -131,7 +149,6 @@ export const recoverUser = async (c: Context) => {
   const event = {
     type: "PASSWORD_RESET_REQUEST",
     data: {
-      id: user?.id,
       email: user?.email,
       resetToken: resetToken?.token,
     },
@@ -173,6 +190,16 @@ export const validationResetToken = async (c: Context) => {
 
   // Hash password
   const password_hash = await newPasswordHash(password);
+  const user = await getUserByEmail(resetToken?.user_id.toString());
+
+  const event = {
+    type: "PASSWORD_RESET_COMPLETED",
+    data: {
+      username: user?.username,
+      email: user?.email,
+    },
+  };
+  publishEvent("user_events", event);
 
   // Update user password and password reset token used
   await updateUser(resetToken?.user_id, password_hash);
