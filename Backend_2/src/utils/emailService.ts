@@ -54,7 +54,7 @@ export const sendEmail = async ({
     }
 
     // Prepare
-    sendSmtpEmail.sender = { email: "harleygutierrez30@gmail.com" };
+    sendSmtpEmail.sender = { email: "email_user_variable" };
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.to = [{ email: to }];
     sendSmtpEmail.htmlContent = html;
