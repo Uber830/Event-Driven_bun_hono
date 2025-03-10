@@ -21,7 +21,7 @@ El proyecto consiste en dos microservicios (`backend1` y `backend2`) que se comu
 - **Message Broker**: RabbitMQ (cloudamqp).
 - **Contenedores**: Docker.
 - **CI/CD**: GitHub Actions.
-- **Despliegue**: DigitalOcean.
+- **Despliegue**: aws(ec2).
 - **Email-SMS**: Brevo
 
 ---
@@ -44,7 +44,7 @@ El proyecto consiste en dos microservicios (`backend1` y `backend2`) que se comu
 - [Docker](https://www.docker.com/) instalado.
 - Cuenta en [Neon](https://neon.tech/) para la base de datos PostgreSQL.
 - Cuenta en [cloudamqp](https://www.cloudamqp.com/) para el servicio de mensajeria.
-- Cuenta en [DigitalOcean](https://www.digitalocean.com/) para el despliegue.
+- Cuenta en [aws](https://www.aws.amazon.com/) para el despliegue.
 
 ---
 
