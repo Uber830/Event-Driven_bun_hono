@@ -2,9 +2,6 @@ FROM oven/bun:1.0.0
 
 WORKDIR /app
 
-# Copy .env file
-COPY .env .env
-
 # File system
 COPY package.json .
 COPY bun.* .
