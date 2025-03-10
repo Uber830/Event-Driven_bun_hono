@@ -1,40 +1,27 @@
 version: "3.8"
 services:
   backend1:
-    image: bun-backend1
+    image: uberman385/backend1:latest
     container_name: backend1
-    build: ./Backend_1
+    build:
+      context: ./Backend_1
+      dockerfile: Dockerfile
     ports:
-      - ${PORT1}:3006
+      - 3005:3005
     environment:
-      - NODE_ENV=development
-    depends_on:
-      db1:
-        condition: service_healthy
-    networks:
-      - mynetwork
-
-  db1:
-    image: postgres
-    container_name: db1
-    ports:
-      - ${DB_PORT1}:5432
+      - NODE_ENV=production
     volumes:
-      - db_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME1}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME1}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - mynetwork
-volumes:
-  db_data:
+      - ./Backend_1:/app
 
-networks:
-  mynetwork:
-    driver: bridge
+  backend2:
+    image: uberman385/backend2:latest
+    container_name: backend2
+    build:
+      context: ./Backend_2
+      dockerfile: Dockerfile
+    ports:
+      - 3006:3006
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./Backend_2/:/app
