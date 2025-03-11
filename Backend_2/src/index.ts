@@ -19,7 +19,7 @@ const startApplication = async () => {
 startApplication().catch((error) => {
   console.error("Failed to start application:", error);
 });
-// Config db
+// Config db connection and create db
 dbInit;
 initializeDatabase()
   .then(() => {
