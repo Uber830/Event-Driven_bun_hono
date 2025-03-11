@@ -54,7 +54,7 @@ export const sendEmail = async ({
     }
 
     // Prepare
-    sendSmtpEmail.sender = { email: "email_user_variable" };
+    sendSmtpEmail.sender = { email: "noreply@brevo.com" };
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.to = [{ email: to }];
     sendSmtpEmail.htmlContent = html;
