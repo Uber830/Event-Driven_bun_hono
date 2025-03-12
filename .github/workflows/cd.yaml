@@ -23,6 +23,37 @@ jobs:
           sudo docker rm -f backend2-container || true
 
       - name: Run Docker containers
+        env:
+          DB_HOST1: ${{ vars.DB_HOST }}
+          DB_USER1: ${{ vars.DB_USER }}
+          DB_PASSWORD1: ${{ secrets.DB_PASSWORD }}
+          DB_NAME1: ${{ vars.DB_NAME }}
+          PORT1: ${{ vars.PORT }}
+          PORT2: ${{ vars.PORT }}
+          DB_HOST2: ${{ vars.DB_HOST }}
+          DB_USER2: ${{ vars.DB_USER }}
+          DB_PASSWORD2: ${{ secrets.DB_PASSWORD }}
+          DB_NAME2: ${{ vars.DB_NAME }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
         run: |
-          sudo docker run -d -p 3005:3005 --name backend1-container uberman385/backend1:latest
-          sudo docker run -d -p 3006:3006 --name backend2-container uberman385/backend2:latest
+          sudo docker run -d -p $PORT1:3005 --name backend1-container \
+            -e DB_HOST=$DB_HOST1 \
+            -e DB_USER=$DB_USER1 \
+            -e DB_PASSWORD=$DB_PASSWORD1 \
+            -e DB_NAME=$DB_NAME1 \
+            -e DB_PORT=$DB_PORT \
+            -e JWT_SECRET=$JWT_SECRET \
+            -e RABBITMQ_URL=$RABBITMQ_URL \
+            uberman385/backend1:latest
+
+          sudo docker run -d -p $PORT2:3006 --name backend2-container \
+            -e DB_HOST=$DB_HOST2 \
+            -e DB_USER=$DB_USER2 \
+            -e DB_PASSWORD=$DB_PASSWORD2 \
+            -e DB_NAME=$DB_NAME2 \
+            -e DB_PORT=$DB_PORT \
+            -e JWT_SECRET=$JWT_SECRET \
+            -e RABBITMQ_URL=$RABBITMQ_URL \
+            uberman385/backend2:latest
