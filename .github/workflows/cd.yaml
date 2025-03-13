@@ -24,16 +24,16 @@ jobs:
 
       - name: Run Docker containers
         env:
-          DB_HOST1: ${{ vars.DB_HOST }}
-          DB_USER1: ${{ vars.DB_USER }}
-          DB_PASSWORD1: ${{ secrets.DB_PASSWORD }}
-          DB_NAME1: ${{ vars.DB_NAME }}
-          PORT1: ${{ vars.PORT }}
-          PORT2: ${{ vars.PORT }}
-          DB_HOST2: ${{ vars.DB_HOST }}
-          DB_USER2: ${{ vars.DB_USER }}
-          DB_PASSWORD2: ${{ secrets.DB_PASSWORD }}
-          DB_NAME2: ${{ vars.DB_NAME }}
+          DB_HOST1: ${{ vars.DB_HOST1 }}
+          DB_USER1: ${{ vars.DB_USER1 }}
+          DB_PASSWORD1: ${{ secrets.DB_PASSWORD1 }}
+          DB_NAME1: ${{ vars.DB_NAME1 }}
+          PORT1: ${{ vars.PORT1 }}
+          PORT2: ${{ vars.PORT2 }}
+          DB_HOST2: ${{ vars.DB_HOST2 }}
+          DB_USER2: ${{ vars.DB_USER2 }}
+          DB_PASSWORD2: ${{ secrets.DB_PASSWORD2 }}
+          DB_NAME2: ${{ vars.DB_NAME2 }}
           DB_PORT: ${{ vars.DB_PORT }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
