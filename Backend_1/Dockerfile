@@ -10,6 +10,6 @@ COPY src ./src
 
 # Instalar dependencias
 RUN bun install
-EXPOSE 3005
+
 # Comando para iniciar la aplicación
 CMD ["bun", "run", "app.ts"]
