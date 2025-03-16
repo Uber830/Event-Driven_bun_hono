@@ -66,7 +66,7 @@ El proyecto consiste en dos microservicios (`backend1` y `backend2`) que se comu
 
 ## **Despliegue**
 
-El proyecto está configurado con GitHub Actions para desplegar automáticamente en DigitalOcean cuando se hace push a la rama ```main```.
+El proyecto está configurado con GitHub Actions para desplegar automáticamente en EC2(aws) cuando se hace push a la rama ```main```.
 
 ## **Contribución**
 
