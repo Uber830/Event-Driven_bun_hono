@@ -1,5 +1,5 @@
 import home from "./src/index";
-const port = process.env.PORT1 || 3000;
+const port = process.env.PORT || 3000;
 console.log("PORT1", port);
 // run the app
 export default {

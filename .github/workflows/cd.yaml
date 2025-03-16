@@ -46,6 +46,7 @@ jobs:
             -e DB_PORT=$DB_PORT \
             -e JWT_SECRET=$JWT_SECRET \
             -e RABBITMQ_URL=$RABBITMQ_URL \
+            -e PORT=$PORT1 \
             uberman385/backend1:latest
 
           sudo docker run -d -p $PORT2:3006 --name backend2-container \
@@ -56,4 +57,5 @@ jobs:
             -e DB_PORT=$DB_PORT \
             -e JWT_SECRET=$JWT_SECRET \
             -e RABBITMQ_URL=$RABBITMQ_URL \
+            -e PORT=$PORT2 \
             uberman385/backend2:latest
